@@ -4,8 +4,6 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://sawhil.github.io",
-  base: "gofrontend",
   integrations: [
     starlight({
       title: "Go FrontEnd",
