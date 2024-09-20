@@ -9,9 +9,6 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "Go FrontEnd",
-      social: {
-        github: "https://github.com/withastro/starlight",
-      },
       sidebar: [
         {
           label: "Browser Internals",
