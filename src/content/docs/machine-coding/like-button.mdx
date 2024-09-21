@@ -1,0 +1,210 @@
+---
+title: Like Button
+description: Create a like button with multiple states and error handling
+---
+
+import { Tabs, TabItem, Steps } from "@astrojs/starlight/components";
+
+To create an engaging user experience, we must design a Like button that dynamically changes its appearance based on the following states:
+
+- **Default State:** This is the initial, unliked state of the button, devoid of any visual cues indicating it has been liked.
+- **Hover State:** When the button is in its unliked state and the user hovers over it, this state becomes active, providing a subtle visual feedback.
+- **Loading State:** Upon clicking or hovering over the button, this state is triggered, displaying a loading indicator and temporarily disabling user interactions (by disabling pointer events).
+- **Liked State:** Once the like status has been successfully updated on the backend, this state is activated, visually indicating to the user that their action was successful.
+
+### Functional requirements
+
+- Upon clicking the button in its **default** state, it will transition to the **loading** state and initiate a request to the backend API (a simulated API will be used for this purpose).
+- If the request is successful, the button will transition to the **Liked** state.
+- In the event of a failed request, the button will revert to the **Default** or **Hovered** state, depending on whether the cursor is still over the button. An error message from the backend API will be displayed through a banner or toast.
+- If the user clicks on a button in the **Liked** state, the button will revert back to the **default** state.
+
+### Dummy backend API format
+
+- URL: `HTTP://DUMMY_URL.COM`
+- HTTP Method: `POST`
+- Content Type: `application/json`
+- Accepted Parameters in the Request Body:
+  - `action`: A string that can be either `'like'` or `'unlike'`, depending on the desired action.
+- Response:
+  - Success: HTTP 200, JSON payload: `{ message: 'Success!' }`
+  - Failure: HTTP 500, JSON payload: `{ message: 'Error!' }`
+
+### Solution
+
+We won't focus on styling in the solution as it can be done easily if you know basic css.
+
+<Steps>
+
+1. **Defining Icons:** Two SVG strings are defined for the spinner icon and the heart icon. These icons are used to visually represent the loading state and the liked state of the button, respectively.
+
+   ```js
+   /* src/index.js */
+   const spinnerIcon = `<svg width="16" height="16" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg" stroke="currentColor"><g fill="none" fill-rule="evenodd"> <g transform="translate(1 1)" stroke-width="2"> <circle stroke-opacity=".5" cx="18" cy="18" r="18"/> <path d="M36 18c0-9.94-8.06-18-18-18"> <animateTransform attributeName="transform" type="rotate" from="0 18 18" to="360 18 18" dur="1s" repeatCount="indefinite"/></path></g></g></svg>`;
+   const heartIcon = `<svg fill="currentColor" viewBox="0 0 24 24" width="16" height="16" xmlns="http://www.w3.org/2000/svg"><g><path d="M12 21.638h-.014C9.403 21.59 1.95 14.856 1.95 8.478c0-3.064 2.525-5.754 5.403-5.754 2.29 0 3.83 1.58 4.646 2.73.814-1.148 2.354-2.73 4.645-2.73 2.88 0 5.404 2.69 5.404 5.755 0 6.376-7.454 13.11-10.037 13.157H12zM7.354 4.225c-2.08 0-3.903 1.988-3.903 4.255 0 5.74 7.034 11.596 8.55 11.658 1.518-.062 8.55-5.917 8.55-11.658 0-2.267-1.823-4.255-3.903-4.255-2.528 0-3.94 2.936-3.952 2.965-.23.562-1.156.562-1.387 0-.014-.03-1.425-2.965-3.954-2.965z"></path></g></svg>`;
+   ```
+
+2. **Defining the Create Like Button Function:** The createLikeButton function is defined, which takes in one argument: `buttonElement`. This is the DOM element for the like button.
+
+   ```js
+   /* src/index.js */
+   const createLikeButton = (buttonElement) => {
+     // To be defined
+   };
+   ```
+
+3. **Initializing State Variables:** Two state variables are initialized: `isLiked` and `isLoading`. `isLiked` is a boolean that tracks whether the button is in the liked state or not. `isLoading` is a boolean that tracks whether there is a pending API request.
+
+   ```js
+   /* src/index.js */
+   const createLikeButton = (buttonElement) => {
+     let isLiked = false;
+     let isLoading = false;
+   };
+   ```
+
+4. **Defining the Toggle Like Function:** The toggleLike function is defined. This function is responsible for making the API request to like or unlike the item. It sets `isLoading` to true at the beginning of the function. It then makes a POST request to the API. If the response is not ok, it shows the error message using a toast notification. If the response is ok, it toggles the `isLiked` state. Finally, it sets `isLoading` to false and calls the `updateButton` function to update the UI.
+
+   ```js
+   /* src/index.js */
+   const createLikeButton = (buttonElement) => {
+     let isLiked = false;
+     let isLoading = false;
+     const toggleLike = async () => {
+       try {
+         isLoading = true;
+         updateButton(); // Yet to be defined
+
+         const response = await fetch("HTTP://DUMMY_URL.COM", {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+           },
+           body: JSON.stringify({
+             action: isLiked ? "unlike" : "like",
+           }),
+         });
+
+         if (!response.ok) {
+           const res = await response.json();
+           // We are assuming Toast component already exists
+           Toast.error(res.message);
+           return;
+         }
+
+         isLiked = !isLiked;
+       } finally {
+         isLoading = false;
+         updateButton(); // Yet to be defined
+       }
+     };
+   };
+   ```
+
+5. **Defining the Update Button Function:** The updateButton function is defined. This function is responsible for updating the UI based on the current state. It toggles the classes of the button element based on the isLiked state. It sets the disabled attribute of the button element based on the isLoading state. It sets the inner HTML of the icon and label elements based on the isLoading and isLiked states.
+
+   ```js
+   /* src/index.js */
+   const createLikeButton = (buttonElement) => {
+     // Rest of the code
+
+     const updateButton = () => {
+       buttonElement.classList.toggle("like-button--liked", isLiked);
+       buttonElement.classList.toggle("like-button--default", !isLiked);
+
+       buttonElement.disabled = isLoading;
+       buttonElement.querySelector(".like-button-icon").innerHTML = isLoading
+         ? spinnerIcon
+         : heartIcon;
+
+       buttonElement.querySelector(".like-button-label").innerHTML = isLiked
+         ? "Liked"
+         : "Like";
+     };
+   };
+   ```
+
+6. **Defining the Initialize Button Function:** The `initializeButton` function is defined. This function is responsible for initializing the button element. It adds the 'like-button' class to the button element. It adds a click event listener to the button element that calls the `toggleLike` function when the button is clicked. It sets the inner HTML of the button element to contain the icon and label elements.
+
+   ```js
+   /* src/index.js */
+   const createLikeButton = (buttonElement) => {
+     // Rest of code here
+     const initializeButton = () => {
+       buttonElement.classList.add("like-button");
+       buttonElement.addEventListener("click", toggleLike);
+       buttonElement.innerHTML = `<span class="like-button-icon"></span><span class="like-button-label"></span>`;
+     };
+   };
+   ```
+
+7. **Calling the Initialize Button and Update Button Functions:** The `initializeButton` and `updateButton` functions are called to initialize the button element and update the UI based on the initial state. And finally the `createLikeButton` function is called with the DOM element for the like button. This creates the like button and attaches it to the DOM.
+
+   ```js
+   /* src/index.js */
+   const createLikeButton = (buttonElement) => {
+     let isLiked = false;
+     let isLoading = false;
+     const toggleLike = async () => {
+       try {
+         isLoading = true;
+         updateButton();
+
+         const response = await fetch("HTTP://DUMMY_URL.COM", {
+           method: "POST",
+           headers: {
+             "Content-Type": "application/json",
+           },
+           body: JSON.stringify({
+             action: isLiked ? "unlike" : "like",
+           }),
+         });
+
+         if (!response.ok) {
+           const res = await response.json();
+           // We are assuming Toast component already exists
+           Toast.error(res.message);
+           return;
+         }
+
+         isLiked = !isLiked;
+       } finally {
+         isLoading = false;
+         updateButton();
+       }
+     };
+
+     const updateButton = () => {
+       buttonElement.classList.toggle("like-button--liked", isLiked);
+       buttonElement.classList.toggle("like-button--default", !isLiked);
+
+       buttonElement.disabled = isLoading;
+       buttonElement.querySelector(".like-button-icon").innerHTML = isLoading
+         ? spinnerIcon
+         : heartIcon;
+
+       buttonElement.querySelector(".like-button-label").innerHTML = isLiked
+         ? "Liked"
+         : "Like";
+     };
+
+     const initializeButton = () => {
+       buttonElement.classList.add("like-button");
+       buttonElement.addEventListener("click", toggleLike);
+       buttonElement.innerHTML = `<span class="like-button-icon"></span><span class="like-button-label"></span>`;
+     };
+
+     initializeButton();
+     updateButton();
+   };
+
+   createLikeButton(document.querySelector("#like-button"));
+   ```
+
+</Steps>
+
+### Wrap up
+
+While CSS can be used to disable pointer events and add unique UI features, the primary focus of this blog is to provide a comprehensive understanding of machine coding questions and state management with error handling.
+
+In future I plan to add live coding feature as well. For feedback shoot me a mail to : hi@gofrontend.dev
