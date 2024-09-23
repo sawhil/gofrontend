@@ -6,7 +6,7 @@ import { GithubIcon } from "../assets/icons/GithubIcon";
 
 const navbarLinks = [
   { label: "Home", href: "/gofrontend", ariaLabel: "Home" },
-  { label: "Machine Coding", href: "/machine-coding/like-button", ariaLabel: "Machine Coding" },
+  { label: "Machine Coding", href: "/gofrontend/machine-coding/like-button", ariaLabel: "Machine Coding" },
   { label: "Feedback", href: "/gofrontend", ariaLabel: "Feedback" },
   { label: "FAQ", href: "/gofrontend", ariaLabel: "FAQ" },
 ];
